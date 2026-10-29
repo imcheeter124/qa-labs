@@ -1,0 +1,938 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>UI-елементи — ЛР 2</title>
+<meta name="description" content="Лабораторна робота № 2: основні елементи інтерфейсу користувача, їх призначення та робочі приклади.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232f5bd3'/%3E%3Cpath d='M9 16.5l4.5 4.5L23 11.5' stroke='white' stroke-width='3.2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<style>
+  :root {
+    --bg: #eef2f8;
+    --card: #ffffff;
+    --demo: #f6f8fc;
+    --text: #1d2433;
+    --muted: #5d677a;
+    --accent: #2f5bd3;
+    --accent-soft: #e3eafc;
+    --accent-text: #ffffff;
+    --border: #d9e0ec;
+    --danger: #c62f3b;
+    --danger-soft: #fde8ea;
+    --success: #1f8a4c;
+    --success-soft: #e2f5ea;
+    --warn: #a36100;
+    --warn-soft: #fff1d9;
+    --tip-bg: #1d2433;
+    --tip-text: #ffffff;
+    --shadow: 0 8px 24px rgba(20, 40, 90, .07);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #11151d;
+      --card: #1a202b;
+      --demo: #141922;
+      --text: #e6eaf2;
+      --muted: #9aa5b8;
+      --accent: #6d8ff0;
+      --accent-soft: #24304d;
+      --accent-text: #0d1220;
+      --border: #2c3443;
+      --danger: #f0717b;
+      --danger-soft: #3a1f24;
+      --success: #5ccf8c;
+      --success-soft: #17301f;
+      --warn: #f0b45a;
+      --warn-soft: #382a14;
+      --tip-bg: #e6eaf2;
+      --tip-text: #11151d;
+      --shadow: none;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 72px; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.55 "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+  }
+  a { color: var(--accent); }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+  /* ---------- шапка і навігація ---------- */
+  .top {
+    position: sticky; top: 0; z-index: 20;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+  }
+  .top-inner {
+    max-width: 1040px; margin: 0 auto; padding: 10px 16px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .brand { font-weight: 700; text-decoration: none; color: var(--text); white-space: nowrap; }
+  .toc { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: thin; }
+  .toc a {
+    white-space: nowrap; padding: 4px 10px; border-radius: 999px;
+    text-decoration: none; color: var(--muted); font-size: 14px;
+  }
+  .toc a:hover, .toc a.active { background: var(--accent-soft); color: var(--accent); }
+
+  main { max-width: 1040px; margin: 0 auto; padding: 24px 16px 48px; overflow-x: clip; }
+  .intro h1 { margin: 8px 0 6px; font-size: clamp(26px, 4vw, 34px); line-height: 1.2; }
+  .intro p { margin: 0 0 6px; color: var(--muted); max-width: 760px; }
+
+  /* ---------- секції ---------- */
+  section.ctl {
+    margin-top: 24px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  }
+  .about { padding: 22px 24px; }
+  .about h2 { margin: 0 0 8px; font-size: 22px; display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .num {
+    display: inline-grid; place-items: center; min-width: 30px; height: 30px; padding: 0 6px;
+    border-radius: 8px; background: var(--accent); color: var(--accent-text); font-size: 15px;
+  }
+  .about h2 small { font-size: 15px; font-weight: 400; color: var(--muted); }
+  .about p { margin: 0 0 10px; }
+  .about h3 { margin: 14px 0 4px; font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+  .about ul { margin: 0; padding-left: 20px; }
+  .about li { margin: 2px 0; }
+  .demo {
+    padding: 22px 24px;
+    background: var(--demo);
+    border-left: 1px solid var(--border);
+    border-radius: 0 14px 14px 0;
+    display: flex; flex-direction: column; gap: 16px;
+  }
+  .demo-title { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0; }
+  fieldset { border: 1px solid var(--border); border-radius: 10px; margin: 0; padding: 10px 14px 12px; background: var(--card); }
+  legend { padding: 0 6px; font-weight: 600; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center; }
+  .stack { display: grid; gap: 6px; }
+  .out {
+    margin: 0; padding: 8px 12px; border-radius: 8px;
+    background: var(--accent-soft); color: var(--text); font-size: 14px; min-height: 38px;
+  }
+  .out b { color: var(--accent); }
+  .hint { font-size: 13px; color: var(--muted); }
+
+  /* ---------- 1–2. перемикачі та прапорці ---------- */
+  .choice { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
+  .choice input { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; margin: 0; }
+  .choice:has(input:disabled) { opacity: .5; cursor: not-allowed; }
+  .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: var(--card); }
+  .seg input { position: absolute; opacity: 0; pointer-events: none; }
+  .seg label { padding: 6px 16px; cursor: pointer; border-right: 1px solid var(--border); font-weight: 600; }
+  .seg label:last-of-type { border-right: 0; }
+  .seg input:checked + label { background: var(--accent); color: var(--accent-text); }
+  .seg input:focus-visible + label { outline: 3px solid var(--accent); outline-offset: -3px; }
+  .sub { padding-left: 26px; display: grid; gap: 4px; }
+
+  /* ---------- 3. поля введення ---------- */
+  .field { display: grid; gap: 4px; align-content: start; }
+  .field label { font-weight: 600; font-size: 14px; }
+  .req { color: var(--danger); }
+  input[type=text], input[type=email], input[type=tel], input[type=password], input[type=search], textarea, select {
+    width: 100%;
+    font: inherit; color: var(--text);
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 10px;
+  }
+  textarea { resize: vertical; min-height: 72px; }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .invalid input, .invalid textarea { border-color: var(--danger); }
+  .msg { font-size: 13px; min-height: 18px; color: var(--muted); }
+  .invalid .msg { color: var(--danger); }
+  .valid .msg { color: var(--success); }
+  .pw { display: flex; gap: 6px; }
+  .pw input { flex: 1; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  /* ---------- 4. вкладки ---------- */
+  .tabs [role=tablist] { display: flex; gap: 2px; border-bottom: 2px solid var(--border); overflow-x: auto; }
+  .tabs [role=tab] {
+    font: inherit; font-weight: 600; color: var(--muted);
+    background: none; border: 0; border-bottom: 3px solid transparent; margin-bottom: -2px;
+    padding: 8px 14px; cursor: pointer; white-space: nowrap;
+  }
+  .tabs [role=tab]:hover { color: var(--text); }
+  .tabs [role=tab][aria-selected=true] { color: var(--accent); border-bottom-color: var(--accent); }
+  .tabs [role=tabpanel] { background: var(--card); border: 1px solid var(--border); border-top: 0; border-radius: 0 0 10px 10px; padding: 12px 14px; }
+  .tabs [role=tabpanel] p { margin: 0 0 6px; }
+  .tabs [role=tabpanel] ul { margin: 0; padding-left: 20px; }
+
+  /* ---------- 5. кнопки ---------- */
+  .btn {
+    font: inherit; font-weight: 600;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 8px 16px; border-radius: 8px; border: 1px solid transparent;
+    cursor: pointer; transition: filter .15s, transform .05s;
+  }
+  .btn:active { transform: translateY(1px); }
+  .btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+  .btn-primary { background: var(--accent); color: var(--accent-text); }
+  .btn-primary:hover:not(:disabled) { filter: brightness(1.08); }
+  .btn-secondary { background: var(--card); color: var(--text); border-color: var(--border); }
+  .btn-secondary:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+  .btn-danger { background: var(--danger); color: #fff; }
+  .btn-danger:hover:not(:disabled) { filter: brightness(1.08); }
+  .btn-icon { width: 38px; height: 38px; padding: 0; border-radius: 50%; }
+  .spinner {
+    width: 16px; height: 16px; border-radius: 50%;
+    border: 2px solid currentColor; border-right-color: transparent;
+    animation: spin .7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ---------- 6. текстові мітки ---------- */
+  .badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 13px; font-weight: 600; }
+  .b-ok { background: var(--success-soft); color: var(--success); }
+  .b-err { background: var(--danger-soft); color: var(--danger); }
+  .b-warn { background: var(--warn-soft); color: var(--warn); }
+  .b-info { background: var(--accent-soft); color: var(--accent); }
+  .status { padding: 8px 12px; border-radius: 8px; font-size: 14px; }
+
+  /* ---------- 7. посилання ---------- */
+  .links { display: grid; gap: 8px; }
+  .links a { text-underline-offset: 3px; }
+  .links a:visited { color: #7a4fc4; }
+  @media (prefers-color-scheme: dark) { .links a:visited { color: #b597f0; } }
+  .ext::after { content: " ↗"; font-size: .85em; }
+
+  /* ---------- 8. підказки ---------- */
+  .tip { position: relative; display: inline-flex; }
+  .tip-box {
+    position: absolute; left: 50%; bottom: calc(100% + 10px);
+    transform: translateX(calc(-50% + var(--dx, 0px))) translateY(4px);
+    width: max-content; max-width: min(240px, calc(100vw - 32px));
+    background: var(--tip-bg); color: var(--tip-text);
+    font-size: 13px; font-weight: 400; line-height: 1.4; text-align: left;
+    padding: 6px 10px; border-radius: 6px;
+    opacity: 0; visibility: hidden; pointer-events: none;
+    transition: opacity .15s, transform .15s, visibility .15s;
+    z-index: 5;
+  }
+  .tip-box::after {
+    content: ""; position: absolute; top: 100%; left: calc(50% - var(--dx, 0px)); transform: translateX(-50%);
+    border: 6px solid transparent; border-top-color: var(--tip-bg);
+  }
+  .tip-box.below { bottom: auto; top: calc(100% + 10px); transform: translateX(calc(-50% + var(--dx, 0px))) translateY(-4px); }
+  .tip-box.below::after { top: auto; bottom: 100%; border-top-color: transparent; border-bottom-color: var(--tip-bg); }
+  .tip:hover .tip-box, .tip:focus-within .tip-box { opacity: 1; visibility: visible; transform: translateX(calc(-50% + var(--dx, 0px))) translateY(0); }
+  .qmark {
+    width: 24px; height: 24px; border-radius: 50%; padding: 0;
+    border: 1px solid var(--border); background: var(--card); color: var(--accent);
+    font: 700 14px/1 inherit; cursor: help;
+  }
+  .abbr { border-bottom: 1px dashed var(--muted); cursor: help; }
+
+  /* ---------- 9. списки, що випадають ---------- */
+  select[multiple] { min-height: 118px; padding: 4px; }
+
+  /* ---------- 10. таблиця даних ---------- */
+  .grid-tools { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+  .grid-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; background: var(--card); }
+  table.grid { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .grid th, .grid td { padding: 7px 10px; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  .grid tbody tr:last-child td { border-bottom: 0; }
+  .grid th { background: var(--demo); font-weight: 600; }
+  .grid th button {
+    font: inherit; font-weight: 600; color: var(--text); background: none; border: 0; padding: 0;
+    cursor: pointer; display: inline-flex; gap: 4px; align-items: center;
+  }
+  .grid th button::after { content: "↕"; color: var(--muted); font-size: 12px; }
+  .grid th[aria-sort=ascending] button::after { content: "▲"; color: var(--accent); }
+  .grid th[aria-sort=descending] button::after { content: "▼"; color: var(--accent); }
+  .grid tbody tr:hover { background: var(--accent-soft); }
+  .grid tbody tr.sel { background: var(--accent-soft); }
+  .grid td.title { white-space: normal; min-width: 180px; }
+  .grid input[type=checkbox] { accent-color: var(--accent); width: 16px; height: 16px; }
+  .pager { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 14px; }
+  .pager .btn { padding: 4px 12px; }
+  .empty td { text-align: center; color: var(--muted); padding: 18px; }
+
+  /* ---------- сповіщення ---------- */
+  .toast {
+    position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%) translateY(20px);
+    background: var(--tip-bg); color: var(--tip-text);
+    padding: 10px 18px; border-radius: 10px; font-size: 14px;
+    opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; z-index: 30;
+    max-width: calc(100% - 32px);
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  footer { text-align: center; color: var(--muted); font-size: 14px; padding: 8px 16px 32px; }
+
+  @media (max-width: 820px) {
+    section.ctl { grid-template-columns: 1fr; }
+    .demo { border-left: 0; border-top: 1px solid var(--border); border-radius: 0 0 14px 14px; }
+    .brand span { display: none; }
+  }
+  @media (max-width: 480px) {
+    .two { grid-template-columns: 1fr; }
+    .about, .demo { padding: 18px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-inner">
+    <a class="brand" href="index.html">QA Labs<span> · ЛР 2</span></a>
+    <nav class="toc" aria-label="Зміст">
+      <a href="#radio">Radiobutton</a>
+      <a href="#checkbox">Checkbox</a>
+      <a href="#input">Text input</a>
+      <a href="#tabs">Tabs</a>
+      <a href="#button">Button</a>
+      <a href="#label">Text label</a>
+      <a href="#link">Link</a>
+      <a href="#tooltip">Tooltip</a>
+      <a href="#dropdown">Dropdown</a>
+      <a href="#grid">Data grid</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="intro">
+    <h1>Елементи інтерфейсу користувача (UI Controls)</h1>
+    <p>Лабораторна робота № 2. Для кожного з десяти елементів наведено його призначення та робочий приклад,
+      з яким можна взаємодіяти.</p>
+    <p>Виконав: Ширинга А. О., група ІП-44.</p>
+  </div>
+
+  <!-- 1. RADIOBUTTON -->
+  <section class="ctl" id="radio" aria-labelledby="h-radio">
+    <div class="about">
+      <h2 id="h-radio"><span class="num">1</span> Radiobutton <small>перемикач</small></h2>
+      <p>Перемикач дозволяє вибрати <b>рівно один</b> варіант із групи взаємовиключних варіантів. Вибір нового варіанта
+        автоматично скасовує попередній. Усі перемикачі групи мають однаковий атрибут <code>name</code>.</p>
+    </div>
+    <div class="demo">
+      <p class="demo-title">Приклад</p>
+      <fieldset>
+        <legend>Спосіб доставки</legend>
+        <div class="stack" id="delivery">
+          <label class="choice"><input type="radio" name="delivery" value="Нова пошта" data-price="80" checked> Нова пошта — 80 грн</label>
+          <label class="choice"><input type="radio" name="delivery" value="Укрпошта" data-price="45"> Укрпошта — 45 грн</label>
+          <label class="choice"><input type="radio" name="delivery" value="Самовивіз" data-price="0"> Самовивіз — безкоштовно</label>
+          <label class="choice"><input type="radio" name="delivery" value="Кур’єр" data-price="150" disabled> Кур’єр — тимчасово недоступно</label>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Розмір футболки</legend>
+        <div class="seg" id="size">
+          <input type="radio" name="size" id="size-s" value="S"><label for="size-s">S</label>
+          <input type="radio" name="size" id="size-m" value="M" checked><label for="size-m">M</label>
+          <input type="radio" name="size" id="size-l" value="L"><label for="size-l">L</label>
+          <input type="radio" name="size" id="size-xl" value="XL"><label for="size-xl">XL</label>
+        </div>
+      </fieldset>
+      <p class="out" id="radio-out" aria-live="polite"></p>
+    </div>
+  </section>
+
+  <!-- 2. CHECKBOX -->
+  <section class="ctl" id="checkbox" aria-labelledby="h-checkbox">
+    <div class="about">
+      <h2 id="h-checkbox"><span class="num">2</span> Checkbox <small>прапорець</small></h2>
+      <p>Прапорець має два стани — «позначено» і «не позначено» — і дозволяє вибрати <b>будь-яку кількість</b>
+        варіантів незалежно один від одного (зокрема жодного). Окремий прапорець часто використовують для
+        підтвердження згоди.</p>
+    </div>
+    <div class="demo">
+      <p class="demo-title">Приклад</p>
+      <fieldset>
+        <legend>Додаткові послуги</legend>
+        <label class="choice"><input type="checkbox" id="svc-all"> <b>Вибрати все</b></label>
+        <div class="sub" id="svc">
+          <label class="choice"><input type="checkbox" value="Подарункова упаковка" data-price="50"> Подарункова упаковка (+50 грн)</label>
+          <label class="choice"><input type="checkbox" value="Страхування посилки" data-price="30"> Страхування посилки (+30 грн)</label>
+          <label class="choice"><input type="checkbox" value="SMS-сповіщення" data-price="5"> SMS-сповіщення (+5 грн)</label>
+        </div>
+      </fieldset>
+      <p class="out" id="svc-out" aria-live="polite"></p>
+      <div class="row">
+        <label class="choice"><input type="checkbox" id="terms"> Погоджуюся з умовами використання</label>
+        <button class="btn btn-primary" id="terms-btn" disabled>Продовжити</button>
+      </div>
+      <label class="choice"><input type="checkbox" checked disabled> Обов’язкові cookie (не можна вимкнути)</label>
+    </div>
+  </section>
+
+  <!-- 3. TEXT INPUT -->
+  <section class="ctl" id="input" aria-labelledby="h-input">
+    <div class="about">
+      <h2 id="h-input"><span class="num">3</span> Text input <small>поле введення тексту</small></h2>
+      <p>Поле введення дозволяє користувачу ввести або відредагувати довільний текст: ім’я, email, пароль,
+        пошуковий запит. Багаторядкове поле (<code>textarea</code>) призначене для довших текстів — коментарів, відгуків.</p>
+    </div>
+    <div class="demo">
+      <p class="demo-title">Приклад: форма реєстрації</p>
+      <form id="reg" novalidate class="stack" style="gap:10px">
+        <div class="field" data-rule="name">
+          <label for="f-name">Ім’я <span class="req" aria-hidden="true">*</span></label>
+          <input type="text" id="f-name" placeholder="Наприклад, Олена" autocomplete="given-name" required aria-describedby="m-name">
+          <span class="msg" id="m-name">Від 2 до 30 літер.</span>
+        </div>
+        <div class="two">
+          <div class="field" data-rule="email">
+            <label for="f-email">Email <span class="req" aria-hidden="true">*</span></label>
+            <input type="email" id="f-email" placeholder="name@example.com" autocomplete="email" required aria-describedby="m-email">
+            <span class="msg" id="m-email">Формат name@domain.ua</span>
+          </div>
+          <div class="field" data-rule="phone">
+            <label for="f-phone">Телефон</label>
+            <input type="tel" id="f-phone" placeholder="+380XXXXXXXXX" autocomplete="tel" aria-describedby="m-phone">
+            <span class="msg" id="m-phone">Необов’язкове поле.</span>
+          </div>
+        </div>
+        <div class="field" data-rule="password">
+          <label for="f-pass">Пароль <span class="req" aria-hidden="true">*</span></label>
+          <div class="pw">
+            <input type="password" id="f-pass" autocomplete="new-password" required aria-describedby="m-pass">
+            <button type="button" class="btn btn-secondary" id="pw-toggle" aria-pressed="false">Показати</button>
+          </div>
+          <span class="msg" id="m-pass">Мінімум 8 символів, хоча б одна цифра.</span>
+        </div>
+        <div class="field" data-rule="comment">
+          <label for="f-comment">Коментар</label>
+          <textarea id="f-comment" maxlength="200" placeholder="Кілька слів про себе…" aria-describedby="m-comment"></textarea>
+          <span class="msg" id="m-comment">0 / 200</span>
+        </div>
+        <div class="row">
+          <button type="submit" class="btn btn-primary">Зареєструватися</button>
+          <button type="reset" class="btn btn-secondary">Очистити</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- 4. TABS -->
+  <section class="ctl" id="tabs" aria-labelledby="h-tabs">
+    <div class="about">
+      <h2 id="h-tabs"><span class="num">4</span> Tabs <small>вкладки</small></h2>
+      <p>Вкладки розділяють пов’язаний вміст на кілька панелей, з яких одночасно показано лише одну.
+        Заголовки вкладок завжди видимі, тому користувач бачить, які розділи є, і перемикається між ними без переходу на іншу сторінку.</p>
+    </div>
+    <div class="demo">
+      <p class="demo-title">Приклад: картка товару «Настільна лампа»</p>
+      <div class="tabs" id="product-tabs">
+        <div role="tablist" aria-label="Інформація про товар">
+          <button role="tab" id="tab-1" aria-controls="panel-1" aria-selected="true">Опис</button>
+          <button role="tab" id="tab-2" aria-controls="panel-2" aria-selected="false" tabindex="-1">Характеристики</button>
+          <button role="tab" id="tab-3" aria-controls="panel-3" aria-selected="false" tabindex="-1">Відгуки (2)</button>
+        </div>
+        <div role="tabpanel" id="panel-1" aria-labelledby="tab-1" tabindex="0">
+          <p>Світлодіодна настільна лампа з сенсорним керуванням і плавним регулюванням яскравості.
+            Плафон нахиляється на 0–90°, тож світло легко спрямувати на робоче місце.</p>
+        </div>
+        <div role="tabpanel" id="panel-2" aria-labelledby="tab-2" tabindex="0" hidden>
+          <ul>
+            <li>Потужність: 8 Вт, світловий потік 500 лм</li>
+            <li>Колірна температура: 4000 K</li>
+            <li>Рівні яскравості: 5</li>
+            <li>Висота: 45 см, діаметр основи 15 см</li>
+          </ul>
+        </div>
+        <div role="tabpanel" id="panel-3" aria-labelledby="tab-3" tabindex="0" hidden>
+          <p><b>Ірина:</b> «Світло рівне, очі не втомлюються». ★★★★★</p>
+          <p><b>Андрій:</b> «Хотілося б довший шнур». ★★★★☆</p>
+        </div>
+      </div>
+      <p class="hint">Порада: клацніть на вкладку, а далі перемикайтеся стрілками ← → на клавіатурі.</p>
+    </div>
+  </section>
+
+  <!-- 5. BUTTON -->
+  <section class="ctl" id="button" aria-labelledby="h-button">
+    <div class="about">
+      <h2 id="h-button"><span class="num">5</span> Button <small>кнопка</small></h2>
+      <p>Кнопка запускає дію: надіслати форму, зберегти, скасувати, видалити, відкрити вікно. Текст кнопки
+        має називати дію дієсловом. Вигляд кнопки показує її важливість: основна (primary), другорядна (secondary),
+        небезпечна (danger).</p>
+    </div>
+    <div class="demo">
+      <p class="demo-title">Приклад</p>
+      <div class="row">
+        <button class="btn btn-primary" id="btn-save">Зберегти</button>
+        <button class="btn btn-secondary" id="btn-cancel">Скасувати</button>
+        <button class="btn btn-danger" id="btn-delete">Видалити</button>
+        <button class="btn btn-primary" disabled>Недоступна</button>
+      </div>
+      <div class="row">
+        <button class="btn btn-primary" id="btn-load">Надіслати звіт</button>
+        <button class="btn btn-secondary btn-icon" id="btn-like" aria-label="Подобається" aria-pressed="false">♡</button>
+        <button class="btn btn-secondary" id="btn-count">Натиснуто: 0</button>
+      </div>
+      <p class="out" id="btn-out" aria-live="polite">Натисніть будь-яку кнопку.</p>
+    </div>
+  </section>
+
+  <!-- 6. TEXT LABEL -->
+  <section class="ctl" id="label" aria-labelledby="h-label">
+    <div class="about">
+      <h2 id="h-label"><span class="num">6</span> Text label <small>текстова мітка</small></h2>
+      <p>Мітка — це статичний текст, який пояснює інший елемент або повідомляє користувачу інформацію. Мітку поля
+        прив’язують до нього (<code>&lt;label for="id"&gt;</code>): клік по мітці переводить фокус у поле, а
+        програма екранного доступу озвучує назву поля.</p>
+    </div>
+    <div class="demo">
+      <p class="demo-title">Приклад</p>
+      <div class="field">
+        <label for="l-city">Місто доставки <span class="req">*</span></label>
+        <input type="text" id="l-city" placeholder="Клацніть на мітку вище — фокус перейде сюди">
+        <span class="msg">Мітка-підказка: вкажіть населений пункт без скорочень.</span>
+      </div>
+      <div class="row">
+        <span class="badge b-ok">✓ Оплачено</span>
+        <span class="badge b-warn">⏳ Очікує</span>
+        <span class="badge b-err">✕ Скасовано</span>
+        <span class="badge b-info">Нове</span>
+      </div>
+      <p class="status" style="background:var(--success-soft);color:var(--success);margin:0">✓ Дані успішно збережено.</p>
+      <p class="status" style="background:var(--danger-soft);color:var(--danger);margin:0">✕ Не вдалося з’єднатися із сервером. Спробуйте пізніше.</p>
+    </div>
+  </section>
+
+  <!-- 7. LINK -->
+  <section class="ctl" id="link" aria-labelledby="h-link">
+    <div class="about">
+      <h2 id="h-link"><span class="num">7</span> Link <small>посилання</small></h2>
+      <p>Посилання переводить користувача на іншу сторінку, інший сайт, інше місце на поточній сторінці, відкриває
+        поштовий клієнт або завантажує файл. Зазвичай виділяється кольором і підкресленням; відвідане посилання
+        змінює колір.</p>
+    </div>
+    <div class="demo">
+      <p class="demo-title">Приклад</p>
+      <div class="links">
+        <a class="ext" href="https://www.google.com" target="_blank" rel="noopener noreferrer">Google</a>
+        <a href="https://www.wikipedia.org">Wikipedia</a>
+        <a href="index.html">Local page link</a>
+      </div>
+      <p class="hint">Відвідані посилання змінюють колір на фіолетовий.</p>
+    </div>
+  </section>
+
+  <!-- 8. TOOLTIP -->
+  <section class="ctl" id="tooltip" aria-labelledby="h-tooltip">
+    <div class="about">
+      <h2 id="h-tooltip"><span class="num">8</span> Tooltip <small>спливна підказка</small></h2>
+      <p>Підказка — це невеликий напис, що з’являється, коли користувач наводить курсор на елемент або переводить
+        на нього фокус клавіатурою, і зникає, коли курсор іде. Вона пояснює значення іконки, терміна чи поля, не
+        захаращуючи інтерфейс.</p>
+    </div>
+    <div class="demo">
+      <p class="demo-title">Приклад: наведіть курсор або натисніть Tab</p>
+      <div class="row" style="padding-top:40px">
+        <span class="tip">
+          <button class="btn btn-secondary" aria-describedby="tt-1">Наведи на мене</button>
+          <span class="tip-box" role="tooltip" id="tt-1">Це звичайна підказка над кнопкою.</span>
+        </span>
+        <span class="tip">
+          <button class="btn btn-secondary btn-icon" aria-label="Друк" aria-describedby="tt-2">🖨</button>
+          <span class="tip-box" role="tooltip" id="tt-2">Друк сторінки (Ctrl+P)</span>
+        </span>
+        <span class="tip">
+          <span class="abbr" tabindex="0" aria-describedby="tt-3">QA</span>
+          <span class="tip-box below" role="tooltip" id="tt-3">Quality Assurance — забезпечення якості програмного забезпечення.</span>
+        </span>
+      </div>
+      <div class="field">
+        <label for="tt-cvv" style="display:flex;gap:8px;align-items:center">Код CVV
+          <span class="tip">
+            <button type="button" class="qmark" aria-label="Що таке CVV?" aria-describedby="tt-4">?</button>
+            <span class="tip-box" role="tooltip" id="tt-4">Три цифри на звороті картки. Приклад поля — нічого не вводьте.</span>
+          </span>
+        </label>
+        <input type="text" id="tt-cvv" placeholder="Демонстраційне поле" disabled style="max-width:220px">
+      </div>
+      <p class="hint">Також існує стандартна підказка браузера через атрибут <code>title</code>:
+        <span class="abbr" title="Ця підказка показується браузером із затримкою">наведіть сюди</span>.</p>
+    </div>
+  </section>
+
+  <!-- 9. DROPDOWN LIST -->
+  <section class="ctl" id="dropdown" aria-labelledby="h-dropdown">
+    <div class="about">
+      <h2 id="h-dropdown"><span class="num">9</span> Dropdown list <small>список, що випадає</small></h2>
+      <p>Список, що випадає, показує лише вибране значення, а повний перелік варіантів розкривається після кліку.
+        Так можна запропонувати багато варіантів, займаючи мінімум місця. Варіанти можна групувати, а список із
+        атрибутом <code>multiple</code> дозволяє вибрати кілька значень.</p>
+    </div>
+    <div class="demo">
+      <p class="demo-title">Приклад: залежні списки</p>
+      <div class="two">
+        <div class="field">
+          <label for="dd-country">Країна</label>
+          <select id="dd-country">
+            <option value="" selected disabled>Оберіть країну…</option>
+            <option value="ua">Україна</option>
+            <option value="pl">Польща</option>
+            <option value="de">Німеччина</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="dd-city">Місто</label>
+          <select id="dd-city" disabled>
+            <option value="">Спершу оберіть країну</option>
+          </select>
+        </div>
+      </div>
+      <div class="two">
+        <div class="field">
+          <label for="dd-sort">Сортування (з групами)</label>
+          <select id="dd-sort">
+            <optgroup label="Ціна">
+              <option>Від дешевих до дорогих</option>
+              <option>Від дорогих до дешевих</option>
+            </optgroup>
+            <optgroup label="Інше">
+              <option selected>За популярністю</option>
+              <option>За новизною</option>
+              <option>За рейтингом</option>
+            </optgroup>
+          </select>
+        </div>
+        <div class="field">
+          <label for="dd-lang">Мови (Ctrl + клік)</label>
+          <select id="dd-lang" multiple>
+            <option selected>Українська</option>
+            <option>English</option>
+            <option>Polski</option>
+            <option>Deutsch</option>
+            <option>Français</option>
+          </select>
+        </div>
+      </div>
+      <p class="out" id="dd-out" aria-live="polite"></p>
+    </div>
+  </section>
+
+  <!-- 10. DATA GRID -->
+  <section class="ctl" id="grid" aria-labelledby="h-grid" style="grid-template-columns:minmax(0, 1fr)">
+    <div class="about">
+      <h2 id="h-grid"><span class="num">10</span> Data grid <small>таблиця даних</small></h2>
+      <p>Таблиця даних показує набір записів у вигляді рядків і стовпців і дозволяє працювати з ними: сортувати
+        за стовпцем (клік по заголовку), шукати, фільтрувати, переглядати посторінково, вибирати рядки для
+        групових дій. Використовується в адмін-панелях, звітах, системах обліку, менеджерах тест-кейсів.</p>
+    </div>
+    <div class="demo" style="border-left:0;border-top:1px solid var(--border);border-radius:0 0 14px 14px">
+      <p class="demo-title">Приклад: тест-кейси проєкту</p>
+      <div class="grid-tools">
+        <input type="search" id="g-search" placeholder="Пошук за ID або назвою…" aria-label="Пошук у таблиці">
+        <select id="g-status" aria-label="Фільтр за статусом">
+          <option value="">Усі статуси</option>
+          <option>Passed</option>
+          <option>Failed</option>
+          <option>Blocked</option>
+          <option>Not run</option>
+        </select>
+      </div>
+      <div class="grid-wrap">
+        <table class="grid" id="g-table">
+          <thead>
+            <tr>
+              <th scope="col"><input type="checkbox" id="g-all" aria-label="Вибрати всі рядки на сторінці"></th>
+              <th scope="col" data-key="id"><button type="button">ID</button></th>
+              <th scope="col" data-key="title"><button type="button">Назва тест-кейсу</button></th>
+              <th scope="col" data-key="module"><button type="button">Модуль</button></th>
+              <th scope="col" data-key="prio"><button type="button">Пріоритет</button></th>
+              <th scope="col" data-key="status"><button type="button">Статус</button></th>
+              <th scope="col" data-key="date"><button type="button">Дата</button></th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="pager">
+        <span id="g-info"></span>
+        <div class="row" style="gap:6px">
+          <button class="btn btn-secondary" id="g-prev">← Назад</button>
+          <span id="g-page"></span>
+          <button class="btn btn-secondary" id="g-next">Далі →</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>© 2026 Ширинга А. О., ІП-44 · Лабораторна робота № 2 · <a href="index.html">Усі лабораторні</a></footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const toastEl = $('#toast');
+  let toastTimer;
+  function toast(text) {
+    toastEl.textContent = text;
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2200);
+  }
+
+  // ---------- 1. Radiobutton
+  function updateRadio() {
+    const d = $('input[name=delivery]:checked');
+    const s = $('input[name=size]:checked');
+    const price = +d.dataset.price;
+    $('#radio-out').innerHTML = `Обрано: <b>${d.value}</b> (${price ? price + ' грн' : 'безкоштовно'}), розмір <b>${s.value}</b>`;
+  }
+  $$('input[name=delivery], input[name=size]').forEach(r => r.addEventListener('change', updateRadio));
+  updateRadio();
+
+  // ---------- 2. Checkbox
+  const all = $('#svc-all');
+  const items = $$('#svc input');
+  function updateSvc() {
+    const on = items.filter(i => i.checked);
+    all.checked = on.length === items.length;
+    all.indeterminate = on.length > 0 && on.length < items.length;
+    const sum = on.reduce((a, i) => a + +i.dataset.price, 0);
+    $('#svc-out').innerHTML = on.length
+      ? `Вибрано ${on.length}: ${on.map(i => i.value).join(', ')}. Разом: <b>+${sum} грн</b>`
+      : 'Додаткових послуг не вибрано.';
+  }
+  all.addEventListener('change', () => { items.forEach(i => { i.checked = all.checked; }); updateSvc(); });
+  items.forEach(i => i.addEventListener('change', updateSvc));
+  updateSvc();
+  $('#terms').addEventListener('change', e => { $('#terms-btn').disabled = !e.target.checked; });
+  $('#terms-btn').addEventListener('click', () => toast('Умови прийнято — можна продовжувати.'));
+
+  // ---------- 3. Text input
+  const rules = {
+    name: v => !v.trim() ? 'Поле обов’язкове.' : !/^[A-Za-zА-Яа-яІіЇїЄєҐґ'’ -]{2,30}$/.test(v.trim()) ? 'Лише літери, від 2 до 30 символів.' : '',
+    email: v => !v.trim() ? 'Поле обов’язкове.' : !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim()) ? 'Некоректний email.' : '',
+    phone: v => !v.trim() ? '' : !/^\+380\d{9}$/.test(v.replace(/[\s()-]/g, '')) ? 'Формат: +380 і 9 цифр.' : '',
+    password: v => !v ? 'Поле обов’язкове.' : v.length < 8 ? `Ще ${8 - v.length} симв. до мінімуму.` : !/\d/.test(v) ? 'Додайте хоча б одну цифру.' : '',
+  };
+  const okText = { name: 'Добре!', email: 'Email коректний.', phone: 'Номер коректний.', password: 'Надійний пароль.' };
+  function check(field) {
+    const rule = field.dataset.rule;
+    if (!rules[rule]) return true;
+    const input = $('input', field);
+    const msg = $('.msg', field);
+    const err = rules[rule](input.value);
+    field.classList.toggle('invalid', !!err);
+    field.classList.toggle('valid', !err && !!input.value.trim());
+    input.setAttribute('aria-invalid', err ? 'true' : 'false');
+    msg.textContent = err || (input.value.trim() ? okText[rule] : 'Необов’язкове поле.');
+    return !err;
+  }
+  const form = $('#reg');
+  $$('.field[data-rule]', form).forEach(f => {
+    const input = $('input, textarea', f);
+    input.addEventListener('blur', () => check(f));
+    input.addEventListener('input', () => { if (f.classList.contains('invalid') || f.classList.contains('valid')) check(f); });
+  });
+  const comment = $('#f-comment');
+  comment.addEventListener('input', () => { $('#m-comment').textContent = `${comment.value.length} / 200`; });
+  $('#pw-toggle').addEventListener('click', e => {
+    const p = $('#f-pass');
+    const show = p.type === 'password';
+    p.type = show ? 'text' : 'password';
+    e.target.textContent = show ? 'Сховати' : 'Показати';
+    e.target.setAttribute('aria-pressed', String(show));
+  });
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const fields = $$('.field[data-rule]', form).filter(f => rules[f.dataset.rule]);
+    const ok = fields.map(check).every(Boolean);
+    if (ok) { toast(`Вітаємо, ${$('#f-name').value.trim()}! Реєстрацію виконано.`); }
+    else { $('.invalid input', form).focus(); }
+  });
+  form.addEventListener('reset', () => setTimeout(() => {
+    $$('.field', form).forEach(f => f.classList.remove('invalid', 'valid'));
+    $('#m-name').textContent = 'Від 2 до 30 літер.';
+    $('#m-email').textContent = 'Формат name@domain.ua';
+    $('#m-phone').textContent = 'Необов’язкове поле.';
+    $('#m-pass').textContent = 'Мінімум 8 символів, хоча б одна цифра.';
+    $('#m-comment').textContent = '0 / 200';
+  }));
+
+  // ---------- 4. Tabs
+  const tabs = $$('#product-tabs [role=tab]');
+  function selectTab(t, focus) {
+    tabs.forEach(x => {
+      const on = x === t;
+      x.setAttribute('aria-selected', String(on));
+      x.tabIndex = on ? 0 : -1;
+      $('#' + x.getAttribute('aria-controls')).hidden = !on;
+    });
+    if (focus) t.focus();
+  }
+  tabs.forEach((t, i) => {
+    t.addEventListener('click', () => selectTab(t));
+    t.addEventListener('keydown', e => {
+      const n = tabs.length;
+      const k = { ArrowRight: (i + 1) % n, ArrowLeft: (i - 1 + n) % n, Home: 0, End: n - 1 }[e.key];
+      if (k !== undefined) { e.preventDefault(); selectTab(tabs[k], true); }
+    });
+  });
+
+  // ---------- 5. Button
+  const out = $('#btn-out');
+  $('#btn-save').addEventListener('click', () => { out.textContent = 'Зміни збережено.'; toast('Зміни збережено.'); });
+  $('#btn-cancel').addEventListener('click', () => { out.textContent = 'Дію скасовано.'; });
+  $('#btn-delete').addEventListener('click', () => {
+    out.textContent = confirm('Видалити запис? Цю дію не можна скасувати.') ? 'Запис видалено.' : 'Видалення скасовано.';
+  });
+  $('#btn-load').addEventListener('click', e => {
+    const b = e.currentTarget;
+    b.disabled = true;
+    b.innerHTML = '<span class="spinner" aria-hidden="true"></span> Надсилання…';
+    out.textContent = 'Кнопку заблоковано, поки триває надсилання — повторний клік не створить дубль.';
+    setTimeout(() => { b.disabled = false; b.textContent = 'Надіслати звіт'; out.textContent = 'Звіт надіслано.'; }, 1500);
+  });
+  $('#btn-like').addEventListener('click', e => {
+    const b = e.currentTarget;
+    const on = b.getAttribute('aria-pressed') !== 'true';
+    b.setAttribute('aria-pressed', String(on));
+    b.textContent = on ? '♥' : '♡';
+    b.style.color = on ? 'var(--danger)' : '';
+    out.textContent = on ? 'Кнопка-перемикач: увімкнено.' : 'Кнопка-перемикач: вимкнено.';
+  });
+  let clicks = 0;
+  $('#btn-count').addEventListener('click', e => { e.currentTarget.textContent = `Натиснуто: ${++clicks}`; });
+
+  // ---------- 8. Tooltip: підказка біля краю екрана зсувається, щоб її було видно повністю
+  $$('.tip').forEach(t => {
+    const box = $('.tip-box', t);
+    const place = () => {
+      box.style.setProperty('--dx', '0px');
+      const r = box.getBoundingClientRect();
+      const w = document.documentElement.clientWidth;
+      const dx = r.right > w - 8 ? w - 8 - r.right : r.left < 8 ? 8 - r.left : 0;
+      box.style.setProperty('--dx', dx + 'px');
+    };
+    t.addEventListener('pointerenter', place);
+    t.addEventListener('focusin', place);
+  });
+
+  // ---------- 9. Dropdown
+  const cities = {
+    ua: ['Київ', 'Львів', 'Одеса', 'Харків', 'Дніпро'],
+    pl: ['Варшава', 'Краків', 'Вроцлав'],
+    de: ['Берлін', 'Мюнхен', 'Гамбург'],
+  };
+  const country = $('#dd-country');
+  const city = $('#dd-city');
+  function updateDd() {
+    const c = country.value ? country.selectedOptions[0].text : '—';
+    const langs = [...$('#dd-lang').selectedOptions].map(o => o.text);
+    $('#dd-out').innerHTML = `Країна: <b>${c}</b>, місто: <b>${city.value || '—'}</b>; сортування: <b>${$('#dd-sort').value}</b>; мови: <b>${langs.join(', ') || '—'}</b>`;
+  }
+  country.addEventListener('change', () => {
+    city.innerHTML = '<option value="" selected disabled>Оберіть місто…</option>' +
+      cities[country.value].map(x => `<option>${x}</option>`).join('');
+    city.disabled = false;
+    updateDd();
+  });
+  [city, $('#dd-sort'), $('#dd-lang')].forEach(s => s.addEventListener('change', updateDd));
+  updateDd();
+
+  // ---------- 10. Data grid
+  const data = [
+    ['TC-001', 'Вхід з коректним логіном і паролем', 'Авторизація', 'Високий', 'Passed', '2026-10-01'],
+    ['TC-002', 'Вхід з неправильним паролем', 'Авторизація', 'Високий', 'Passed', '2026-10-01'],
+    ['TC-003', 'Відновлення пароля через email', 'Авторизація', 'Середній', 'Failed', '2026-10-02'],
+    ['TC-004', 'Додавання товару в кошик', 'Кошик', 'Високий', 'Passed', '2026-10-03'],
+    ['TC-005', 'Зміна кількості товару в кошику', 'Кошик', 'Середній', 'Blocked', '2026-10-03'],
+    ['TC-006', 'Застосування промокоду', 'Кошик', 'Низький', 'Not run', '2026-10-05'],
+    ['TC-007', 'Оплата карткою', 'Оплата', 'Високий', 'Failed', '2026-10-06'],
+    ['TC-008', 'Вибір способу доставки', 'Оформлення', 'Середній', 'Passed', '2026-10-06'],
+    ['TC-009', 'Пошук товару за назвою', 'Каталог', 'Середній', 'Passed', '2026-10-07'],
+    ['TC-010', 'Фільтрація каталогу за ціною', 'Каталог', 'Низький', 'Not run', '2026-10-08'],
+    ['TC-011', 'Сортування каталогу за рейтингом', 'Каталог', 'Низький', 'Passed', '2026-10-08'],
+    ['TC-012', 'Редагування профілю користувача', 'Профіль', 'Середній', 'Blocked', '2026-10-09'],
+    ['TC-013', 'Вихід із системи', 'Авторизація', 'Високий', 'Passed', '2026-10-10'],
+  ].map(([id, title, module, prio, status, date]) => ({ id, title, module, prio, status, date }));
+  const prioRank = { 'Високий': 3, 'Середній': 2, 'Низький': 1 };
+  const statusBadge = { Passed: 'b-ok', Failed: 'b-err', Blocked: 'b-warn', 'Not run': 'b-info' };
+  const PER = 5;
+  const st = { key: 'id', dir: 1, page: 1, q: '', status: '', sel: new Set() };
+  const tbody = $('#g-table tbody');
+
+  function rows() {
+    const q = st.q.toLowerCase();
+    return data
+      .filter(r => (!q || r.id.toLowerCase().includes(q) || r.title.toLowerCase().includes(q)) && (!st.status || r.status === st.status))
+      .sort((a, b) => {
+        const x = st.key === 'prio' ? prioRank[a.prio] : a[st.key];
+        const y = st.key === 'prio' ? prioRank[b.prio] : b[st.key];
+        return (typeof x === 'number' ? x - y : String(x).localeCompare(String(y), 'uk')) * st.dir;
+      });
+  }
+  function render() {
+    const list = rows();
+    const pages = Math.max(1, Math.ceil(list.length / PER));
+    st.page = Math.min(st.page, pages);
+    const view = list.slice((st.page - 1) * PER, st.page * PER);
+    tbody.innerHTML = view.length ? view.map(r => `
+      <tr class="${st.sel.has(r.id) ? 'sel' : ''}">
+        <td><input type="checkbox" data-id="${r.id}" ${st.sel.has(r.id) ? 'checked' : ''} aria-label="Вибрати ${r.id}"></td>
+        <td>${r.id}</td><td class="title">${r.title}</td><td>${r.module}</td><td>${r.prio}</td>
+        <td><span class="badge ${statusBadge[r.status]}">${r.status}</span></td><td>${r.date}</td>
+      </tr>`).join('') : '<tr class="empty"><td colspan="7">Нічого не знайдено. Змініть умови пошуку.</td></tr>';
+    $$('#g-table th[data-key]').forEach(th => {
+      th.setAttribute('aria-sort', th.dataset.key === st.key ? (st.dir > 0 ? 'ascending' : 'descending') : 'none');
+    });
+    const ids = view.map(r => r.id);
+    const selOnPage = ids.filter(id => st.sel.has(id)).length;
+    $('#g-all').checked = ids.length > 0 && selOnPage === ids.length;
+    $('#g-all').indeterminate = selOnPage > 0 && selOnPage < ids.length;
+    const from = list.length ? (st.page - 1) * PER + 1 : 0;
+    $('#g-info').textContent = `Показано ${from}–${(st.page - 1) * PER + view.length} з ${list.length} · вибрано: ${st.sel.size}`;
+    $('#g-page').textContent = `${st.page} / ${pages}`;
+    $('#g-prev').disabled = st.page <= 1;
+    $('#g-next').disabled = st.page >= pages;
+  }
+  $$('#g-table th[data-key] button').forEach(b => b.addEventListener('click', () => {
+    const key = b.parentElement.dataset.key;
+    st.dir = st.key === key ? -st.dir : 1;
+    st.key = key;
+    render();
+  }));
+  $('#g-search').addEventListener('input', e => { st.q = e.target.value.trim(); st.page = 1; render(); });
+  $('#g-status').addEventListener('change', e => { st.status = e.target.value; st.page = 1; render(); });
+  $('#g-prev').addEventListener('click', () => { st.page--; render(); });
+  $('#g-next').addEventListener('click', () => { st.page++; render(); });
+  tbody.addEventListener('change', e => {
+    const id = e.target.dataset.id;
+    if (!id) return;
+    e.target.checked ? st.sel.add(id) : st.sel.delete(id);
+    render();
+  });
+  $('#g-all').addEventListener('change', e => {
+    const ids = rows().slice((st.page - 1) * PER, st.page * PER).map(r => r.id);
+    ids.forEach(id => e.target.checked ? st.sel.add(id) : st.sel.delete(id));
+    render();
+  });
+  render();
+
+  // ---------- підсвічування активного пункту змісту
+  const tocLinks = $$('.toc a');
+  const spy = new IntersectionObserver(entries => {
+    entries.forEach(en => {
+      if (en.isIntersecting) {
+        tocLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + en.target.id));
+      }
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  $$('section.ctl').forEach(s => spy.observe(s));
+})();
+</script>
+</body>
+</html>
